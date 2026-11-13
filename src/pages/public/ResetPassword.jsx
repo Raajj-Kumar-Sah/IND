@@ -1,0 +1,9 @@
+import {useState} from "react";
+import {Link,useSearchParams} from "react-router-dom";
+import {authApi} from "../../services/api.js";
+export default function ResetPassword(){
+ const [params]=useSearchParams(),token=params.get("token")||"";
+ const [password,setPassword]=useState(""),[confirm,setConfirm]=useState(""),[message,setMessage]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false);
+ async function submit(e){e.preventDefault();setError("");setMessage("");if(password!==confirm){setError("Passwords do not match");return}setBusy(true);try{const r=await authApi.resetPassword(token,password);setMessage(r.message)}catch(e){setError(e.message)}finally{setBusy(false)}}
+ return <main className="container min-h-[70vh] py-20"><form onSubmit={submit} className="mx-auto grid max-w-md gap-4 border border-white/10 bg-[#171714] p-8"><div className="eyebrow">ACCOUNT SECURITY</div><h1 className="serif text-3xl">Reset password</h1><p className="text-xs leading-6 text-[#aaa]">Choose a new password of at least 8 characters.</p><input required minLength={8} maxLength={72} type="password" autoComplete="new-password" className="field" placeholder="New password" value={password} onChange={e=>setPassword(e.target.value)}/><input required minLength={8} maxLength={72} type="password" autoComplete="new-password" className="field" placeholder="Confirm new password" value={confirm} onChange={e=>setConfirm(e.target.value)}/><button disabled={busy||!token} className="gold-button">{busy?"Saving...":"Reset password"}</button>{error&&<p className="text-xs text-red-300">{error}</p>}{message&&<p className="text-xs text-emerald-300">{message} <Link className="text-gold underline" to="/portal">Sign in</Link></p>}{!token&&<p className="text-xs text-red-300">Reset token is missing.</p>}</form></main>
+}
